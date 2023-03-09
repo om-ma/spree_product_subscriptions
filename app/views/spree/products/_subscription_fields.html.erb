@@ -1,5 +1,5 @@
 <% if @product.subscribable? %>
-  <div class="subscription_options" style="display: none;">
+  <div class="subscription_options" >
     <br><br>
     <% subscription = Spree::Subscription.new %>
     <span>
@@ -10,7 +10,7 @@
     <span>
       <%= label_tag :subscription, Spree.t(:total_deliveries) %><span class="required">*</span>
       <br>
-      <%= number_field :subscription, :delivery_number, class: "form-control", min: 1, value: 1 %>
+      <%= number_field :subscription, :delivery_number, class: "form-control subscription-total-deliveries", min: 1, value: 1 %>
     </span>
     <br>
     <span>
