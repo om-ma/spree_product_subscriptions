@@ -7,12 +7,11 @@
       <%= collection_select :subscription, :subscription_frequency_id, @product.subscription_frequencies, :id, :title, {}, { class: "form-control" } %>
     </span>
     <br>
-    <span>
+    <span class="hidden">
       <%= label_tag :subscription, Spree.t(:total_deliveries) %><span class="required">*</span>
       <br>
-      <%= number_field :subscription, :delivery_number, class: "form-control subscription-total-deliveries", min: 1, value: 1 %>
+      <%= number_field :subscription, :delivery_number, class: "form-control subscription-total-deliveries", min: 1, value: 1000 %>
     </span>
-    <br>
     <span>
       <%= label_tag :subscription, Spree.t(:quantity) %><span class="required">*</span>
       <br>
