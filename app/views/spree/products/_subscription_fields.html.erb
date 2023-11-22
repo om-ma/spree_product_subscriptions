@@ -1,5 +1,5 @@
 <% if @product.subscribable? %>
-  <div class="subscription_options" >
+  <div id="js_subscription_frequency" class="subscription_options hidden" >
     <% subscription = Spree::Subscription.new %>
     <span>
       <%= label_tag :subscription, Spree.t(:recurring_delivery_interval) %><span class="required">*</span>
