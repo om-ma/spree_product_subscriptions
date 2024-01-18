@@ -6,11 +6,12 @@
 
 <%= f.field_container :title, class: ['form-group'] do %>
   <%= f.label :title %>
-  <%= f.text_field :title, class: 'form-control' %>
+  <%= f.select :title, options_for_select(["month"], @subscription_frequency.title), {}, class: 'form-control', id: 'subscription_frequency_title' %>
   <%= f.error_message_on :title %>
 <% end %>
+
 <%= f.field_container :months_count, class: ['form-group'] do %>
   <%= f.label :months_count %>
-  <%= number_field :subscription_frequency, :months_count, min: 1, value: @subscription_frequency.months_count || 1, class: 'form-control' %>
+  <%= number_field :subscription_frequency, :months_count, min: 1, value: @subscription_frequency.months_count || 1, class: 'form-control', id: 'subscription_frequency_months_count' %>
   <%= f.error_message_on :months_count %>
 <% end %>

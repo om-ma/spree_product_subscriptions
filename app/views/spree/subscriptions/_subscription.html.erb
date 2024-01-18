@@ -14,8 +14,6 @@
     <% elsif !subscription.deliveries_remaining? %>
         Completed
     <% else %>
-      <span id="pause_links"><%= render partial: 'spree/subscriptions/pause_links', locals: { btn_class: "btn-xs" } %></span>
-      <%= link_to Spree.t(:edit), edit_subscription_path(subscription), class: "btn btn-xs btn-info" %>
       <%= link_to Spree.t("subsriptions.admin.cancel"), cancel_subscription_path(subscription), class: "btn btn-xs btn-danger", data: { method: "PATCH", confirmation: Spree.t("subscriptions.confirm.cancel") } %>
     <% end %>
   </td>
