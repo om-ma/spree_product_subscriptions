@@ -71,7 +71,7 @@ module Spree
     after_update :update_next_occurrence_at
 
     def process
-      if (variant.stock_items.sum(:count_on_hand) >= quantity || variant.stock_items.any? { |stock| stock.backorderable? }) && (!variant.product.discontinued?)
+      if subscription_active? && (variant.stock_items.sum(:count_on_hand) >= quantity || variant.stock_items.any? { |stock| stock.backorderable? }) && (!variant.product.discontinued?)
         update_column(:next_occurrence_possible, true)
       else
         update_column(:next_occurrence_possible, false)
@@ -127,6 +127,23 @@ module Spree
       end
     end
 
+    def cancel_stripe_subscription
+      raise "Stripe subscription ID not present." unless stripe_subscription_id.present?
+  
+      stripe_subscription = Stripe::Subscription.retrieve(stripe_subscription_id)
+      raise "Stripe subscription not found. Subscription ID: #{stripe_subscription_id}" unless stripe_subscription
+  
+      stripe_subscription.cancel
+    rescue Stripe::StripeError => e
+      raise "Stripe cancellation error: #{e.message}"
+    end
+  
+    def cancel_local_subscription
+      cancel
+    rescue => e
+      raise "Local subscription cancellation error: #{e.message}"
+    end
+    
     private
 
       def eligible_for_prior_notification?
@@ -226,10 +243,17 @@ module Spree
       end
 
       def add_payment_method_to_order(order)
-        if order.payments.exists?
-          order.payments.first.update(source: source, payment_method: source.payment_method)
-        else
-          order.payments.create(source: source, payment_method: source.payment_method, amount: order.total)
+        recurring_payment_method = Spree::Gateway::StripeSubscription.find_by(name: 'Credit Card', active: true)
+        raise "missing stripe recurring payment method" unless recurring_payment_method
+        
+        begin
+          if order.payments.exists?
+            order.payments.first.update!(source: source, payment_method: recurring_payment_method)
+          else
+            order.payments.create!(source: source, payment_method: recurring_payment_method, amount: order.total)
+          end
+        rescue => e
+          raise "Error while creating payment: #{e.message}"
         end
         order.next
       end
@@ -313,6 +337,10 @@ module Spree
         if Time.current + prior_notification_days_gap.days >= next_occurrence_at_value
           errors.add(:prior_notification_days_gap, Spree.t('subscriptions.error.should_be_earlier_than_next_delivery'))
         end
+      end
+
+      def subscription_active?
+        Spree::StripeInvoice.created_last_7_days.where(subscription_id: self.stripe_subscription_id).exists?
       end
   end
 end
