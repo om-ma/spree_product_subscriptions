@@ -8,7 +8,7 @@ module Spree
     validates :months_count, numericality: { greater_than: 0, only_integer: true, less_than_or_equal_to: 12 }, allow_blank: true
 
     def display_frequency
-      "#{title} #{months_count}"
+      "#{months_count} #{title}s "
     end
   end
 end
